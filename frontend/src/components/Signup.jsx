@@ -42,7 +42,7 @@ function Signup() {
           otp,
           userId: userInfo._id,
         });
-        if (response.data.status ===200) {
+        if (response.data.status ==='SUCCESS') {
           toast.success(response.data.message); // Show success toast
       } else {
           toast.error(response.data.message); // Handle unexpected cases (just in case)

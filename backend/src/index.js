@@ -60,9 +60,8 @@ app.use(cors(corsOptions));
             from: process.env.EMAIL,
             to: email,
             subject: "Verify Your Email",
-            html: `<p>Your OTP is <b>${otp}</b> to verify the email.</p>
-        <p>OTP is valid for 1 Hour.</p>
-        <p>Unihox Task Created by _ Mayank Kamriya<p>`,
+            html: `<p>Your OTP is <b>${otp}</b> to verify the email by - Mayank Kamriya</p>
+        <p>OTP is valid for 1 Hour.</p>`,
         }
 
         const hashedOTP = await bcrypt.hash(otp, 4);
@@ -232,7 +231,7 @@ app.post("/api/v1/signup", async (req, res) => {
     });
 
     const parsedData = requiredBody.safeParse(req.body);
-
+console.log('parsedData....' ,parsedData)
     if (!parsedData.success) {
         return res.status(400).json({
             status: "FAILED",
@@ -242,6 +241,12 @@ app.post("/api/v1/signup", async (req, res) => {
 
     try {
         const { name, email, password } = req.body;
+
+        const check_email = await userModel.findOne({ email });
+
+        if (check_email) {
+            return res.status(403).json({ message: "Email Already exist." });
+        }
 
         // Ensure password is not undefined
         if (!password) {
@@ -287,7 +292,7 @@ app.post("/api/v1/verifyOTP", async (req, res) => {
         const verificationRecord = await OTPModel.find({ _id: userId });
 
         if (verificationRecord.length <= 0) {
-            throw new Error("Record does not exist");
+            throw new Error("Otp does not exist");
         }
 
         const { expiresAt, otp: hashedOTP } = verificationRecord[0];
@@ -300,7 +305,7 @@ app.post("/api/v1/verifyOTP", async (req, res) => {
         const validateOTP = await bcrypt.compare(otp, hashedOTP);
 
         if (!validateOTP) {
-            throw new Error("Invalid Code");
+            throw new Error("Invalid otp");
         }
 
         await userModel.updateOne(

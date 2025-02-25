@@ -16,8 +16,8 @@ mongoose.connect(MONGO_URL, {
 })
 
 const UserSchema=new Schema({
-    name: {type:String,unique:true},
-    email:{type:String,unique:true},
+    name: {type:String},
+    email:{type:String},
     password:String,
     verified:Boolean,
 })
