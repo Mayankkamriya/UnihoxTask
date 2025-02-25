@@ -149,7 +149,7 @@ app.post("/api/v1/signin/request-otp", async (req, res) => {
         let user = await userModel.findOne({ email });
 
         if (!user) {
-            user = new userModel({ email, verified: false });
+            user = new userModel({ email, verified: true });
             await user.save();
         }
 
@@ -262,7 +262,7 @@ console.log('parsedData....' ,parsedData)
             name,
             email,
             password: hashedPassword,
-            verified: false,
+            verified: true,
         });
 
         await sendOTP(user._id, user.email);
