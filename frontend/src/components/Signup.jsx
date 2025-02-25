@@ -11,6 +11,7 @@ function Signup() {
   const [otpSent, setOtpSent] = useState(false);
   const [userInfo,setUserInfo]=useState();
   const otpInputsRef = useRef([]);
+  const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,10 +19,11 @@ function Signup() {
   };
 
   const handleSignup = async () => {
+    setIsProcessing(true);
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/signup`, formData);
       console.log(response.data)
-      if (response.data.status ===200) {
+      if (response.data.status ==='success') {
         toast.success(response.data.message); // Show success toast
     } else {
         toast.error(response.data.message); // Handle unexpected cases (just in case)
@@ -31,7 +33,9 @@ function Signup() {
       setUserInfo(response.data.user);
       setOtpSent(true);
     } catch (error) {
-      alert("Error signing up");
+      toast.error("Error signing up");
+      // alert("Error signing up");
+      setIsProcessing(false); 
     }
   };
 
@@ -51,7 +55,8 @@ function Signup() {
       // alert(response.data.message);
       navigate("/signin-password");
     } catch (error) {
-      alert("Error verifying OTP");
+      toast.error("Error verifying OTP");
+      // alert("Error verifying OTP");
     }
   };
 
@@ -60,7 +65,7 @@ function Signup() {
       <div className=" rounded-2xl shadow-xl p-8 w-full max-w-4xl flex">
         {/* Left Setion */}
         <div className="w-1/2 p-6 flex flex-col justify-center">
-          <h2 className="text-4xl font-semibold  text-white">Create Account</h2>
+          <h2 className="text-4xl font-semibold  text-white">Verify Account</h2>
           <p className="text-gray-200 text-2xl mt-1">Please enter your account details</p>
 
           {!otpSent ? (
@@ -90,7 +95,7 @@ function Signup() {
                 onClick={handleSignup}
                 className="mt-6 w-full cursor-pointer font-bold text-2xl text-white bg-gradient-to-br from-[#0a3b42] via-[#214e54] to-[#60c3d5] py-3 rounded-lg hover:opacity-90 transition-all"
               >
-                SIGN UP
+                 {isProcessing ? "Processing..." : "SIGN UP"}
               </button>
 
               {/* Social Sign Up */}

@@ -12,7 +12,7 @@ import path from "path";
 dotenv.config({ path: path.resolve("..", ".env") });
 const app = express();
 
-
+const JWT_SECRET=process.env.JWT_SECRET
 const corsOptions = {
     origin: '*', // Allow all origins temporarily
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -149,7 +149,7 @@ app.post("/api/v1/signin/request-otp", async (req, res) => {
         let user = await userModel.findOne({ email });
 
         if (!user) {
-            user = new userModel({ email, verified: true });
+            user = new userModel({ email, verified: false });
             await user.save();
         }
 
@@ -262,14 +262,14 @@ console.log('parsedData....' ,parsedData)
             name,
             email,
             password: hashedPassword,
-            verified: true,
+            verified: false,
         });
 
         await sendOTP(user._id, user.email);
 
         res.json({
             status: "success",
-            message: "User Created Successfully",
+            message: "User Created But Please Verify Email",
             user: user
         });
     } catch (e) {
