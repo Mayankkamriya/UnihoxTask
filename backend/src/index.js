@@ -226,7 +226,7 @@ app.post("/api/v1/signin/otp", async (req, res) => {
 
 app.post("/api/v1/signup", async (req, res) => {
     const requiredBody = z.object({
-        name: z.string().min(5).max(15),
+        name: z.string().min(3),
         password: z.string().min(5).max(15),
         email: z.string().email(),
     });
@@ -263,7 +263,7 @@ app.post("/api/v1/signup", async (req, res) => {
         await sendOTP(user._id, user.email);
 
         res.json({
-            status: 200,
+            status: "success",
             message: "User Created Successfully",
             user: user
         });

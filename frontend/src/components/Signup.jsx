@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaFacebook, FaGoogle, FaApple } from "react-icons/fa";
 import yoga from "../assets/image.png"
+import { toast } from "react-toastify";
 
 function Signup() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
@@ -19,7 +20,14 @@ function Signup() {
   const handleSignup = async () => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/signup`, formData);
-      alert(response.data.message);
+      console.log(response.data)
+      if (response.data.status ===200) {
+        toast.success(response.data.message); // Show success toast
+    } else {
+        toast.error(response.data.message); // Handle unexpected cases (just in case)
+    }
+    console.log(response.data.message)
+      // alert(response.data.message);
       setUserInfo(response.data.user);
       setOtpSent(true);
     } catch (error) {
@@ -34,9 +42,13 @@ function Signup() {
           otp,
           userId: userInfo._id,
         });
-
-
-      alert(response.data.message);
+        if (response.data.status ===200) {
+          toast.success(response.data.message); // Show success toast
+      } else {
+          toast.error(response.data.message); // Handle unexpected cases (just in case)
+      }
+        console.log(response.data.message)
+      // alert(response.data.message);
       navigate("/signin-password");
     } catch (error) {
       alert("Error verifying OTP");

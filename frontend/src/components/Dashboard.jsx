@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const link =import.meta.env.VITE_API_URL;
 const Dashboard = () => {
@@ -9,7 +10,7 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token"); 
-    alert("You have been logged out.");
+    toast.success("You have been logged out.")
     navigate("/signin-password"); 
   };
 
@@ -33,7 +34,8 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-        alert("You are not authorized to access this page.");
+        toast.error("You are not authorized to access this page.")
+        // alert("You are not authorized to access this page.");
         navigate("/signin-password"); 
       }
     };

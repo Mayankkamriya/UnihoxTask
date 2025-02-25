@@ -4,10 +4,13 @@ import SigninOTP from "./components/SigninOTP";
 import SigninPassword from "./components/SigninPassword";
 import Dashboard from "./components/Dashboard";
 import MainP from "./components/MainP";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <Router>
+      <ToastContainer position="top-right" autoClose={2500} />
       <Routes>
         <Route path="/" element={<MainP />} />
         <Route path="/dashboard" element={<Dashboard />} />

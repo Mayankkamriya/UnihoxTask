@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import yoga from "../assets/image.png";
+import { toast } from "react-toastify";
 
 function SigninPassword() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -28,17 +29,16 @@ function SigninPassword() {
         
         localStorage.setItem('token', response.data.token);
       }
-      
-      alert("Login successful!");
+      toast.success("Login successful!");
       navigate("/dashboard");
     } catch (error) {
       // More detailed error handling
       if (error.response) {
         // The server responded with a status code outside of 2xx
-        alert(error.response.data.message || "Invalid credentials");
+        toast.error(error.response.data.message || "Invalid credentials");
       } else if (error.request) {
         // The request was made but no response was received
-        alert("No response from server. Please try again.");
+        toast.error("No response from server. Please try again.")
       } else {
         // Something happened in setting up the request
         alert("Error occurred. Please try again.");
