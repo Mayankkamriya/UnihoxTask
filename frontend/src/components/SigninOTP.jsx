@@ -2,17 +2,21 @@ import { useRef, useState } from "react";
 import axios from "axios";
 import yoga from "../assets/image.png"
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SigninOTP = () => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [message, setMessage] = useState("");
+  // const [message, setMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const otpInputsRef = useRef([]);
   const navigate = useNavigate();
 
   const requestOTP = async () => {
     try {
+      setIsProcessing(true);
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/v1/signin/request-otp`, 
         { email },
@@ -23,15 +27,17 @@ const SigninOTP = () => {
           timeout: 10000
         }
       );
+      setIsProcessing(false);
       setOtpSent(true);
-      setMessage(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
+      setIsProcessing(false);
       if (error.code === 'ECONNABORTED') {
-        setMessage("Request timed out. Please try again.");
+        toast.error("Request timed out. Please try again.");
       } else if (error.response) {
-        setMessage(error.response.data.message);
+        toast.error(error.response.data.message);
       } else {
-        setMessage("Error sending OTP. Please try again.");
+        toast.error("Error sending OTP. Please try again.");
       }
       console.error("OTP request error:", error);
     }
@@ -39,7 +45,7 @@ const SigninOTP = () => {
 
   const verifyOTP = async () => {
     if (otp.length !== 4) {
-      setMessage("Please enter complete OTP");
+      toast.warning("Please enter complete OTP");
       return;
     }
 
@@ -59,15 +65,15 @@ const SigninOTP = () => {
         localStorage.setItem('token', response.data.token);
         navigate("/dashboard");
       } else {
-        setMessage(response.data.message);
+        toast.error(response.data.message);
       }
     } catch (error) {
       if (error.code === 'ECONNABORTED') {
-        setMessage("Request timed out. Please try again.");
+        toast.error("Request timed out. Please try again.");
       } else if (error.response) {
-        setMessage(error.response.data.message);
+        toast.error(error.response.data.message);
       } else {
-        setMessage("Error verifying OTP. Please try again.");
+        toast.error("Error verifying OTP. Please try again.");
       }
       console.error("OTP verification error:", error);
     }
@@ -124,7 +130,7 @@ const SigninOTP = () => {
     disabled={otpSent} 
     className="mt-6 lg:mt-8 cursor-pointer w-full font-bold text-xl lg:text-3xl text-white bg-gradient-to-br from-[#0a3b42] via-[#214e54] to-[#60c3d5] py-3 lg:py-4 rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
   >
-    Request OTP
+    {isProcessing ? "Processing..." : "Request OTP"}
   </button>
 
   {otpSent && (
@@ -159,9 +165,10 @@ const SigninOTP = () => {
 
       <button
         onClick={verifyOTP}
+        // onClick={!isProcessing ? () => {verifyOTP()} : undefined}
         className="mt-6 cursor-pointer lg:mt-8 w-full font-bold text-xl lg:text-3xl text-white bg-gradient-to-br from-[#0a3b42] via-[#214e54] to-[#60c3d5] py-3 lg:py-4 rounded-lg hover:opacity-90 transition-all"
       >
-        SUBMIT OTP
+         {isProcessing ? "Processing..." : "SUBMIT OTP"}
       </button>
     </>
   )}

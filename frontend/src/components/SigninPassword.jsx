@@ -14,8 +14,8 @@ function SigninPassword() {
   };
 
   const handleLogin = async () => {
-    setIsProcessing(true);
     try {
+      setIsProcessing(true);
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/v1/signin/password`,
         formData,
@@ -35,6 +35,7 @@ function SigninPassword() {
       toast.success("Login successful!");
       navigate("/dashboard");
     } catch (error) {
+      setIsProcessing(false);
       // More detailed error handling
       if (error.response) {
         // The server responded with a status code outside of 2xx

@@ -149,8 +149,9 @@ app.post("/api/v1/signin/request-otp", async (req, res) => {
         let user = await userModel.findOne({ email });
 
         if (!user) {
-            user = new userModel({ email, verified: false });
-            await user.save();
+            // user = new userModel({ email, verified: false });
+            return res.status(400).json({ message: "User not Found" });
+            // await user.save();
         }
 
         // Call the sendOTP function to generate, hash, and send OTP via email
@@ -231,7 +232,7 @@ app.post("/api/v1/signup", async (req, res) => {
     });
 
     const parsedData = requiredBody.safeParse(req.body);
-console.log('parsedData....' ,parsedData)
+// console.log('parsedData....' ,parsedData)
     if (!parsedData.success) {
         return res.status(400).json({
             status: "FAILED",
