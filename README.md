@@ -22,6 +22,24 @@ This project is a secure authentication system built using **Node.js, Express, M
 - 🛡️ **Validation:** Zod  
 - 🔒 **Security:** CORS, dotenv for environment configuration  
 
+## 📂**Folder Structure**
+      /Backend  
+         └── /src  
+             ├── db.js  
+             ├── index.js  
+             ├── middleware.js  
+
+      /Frontend  
+         └── /src  
+             ├── /components  
+             │   ├── dashboard.jsx  
+             │   ├── mainP.jsx  
+             │   ├── signinOtp.jsx  
+             │   ├── signinPassword.jsx  
+             │   ├── signup.jsx  
+             ├── app.jsx  
+      
+
 ## ⚙️ **Setup Instructions**
 1. Clone the repository:
    ```bash
