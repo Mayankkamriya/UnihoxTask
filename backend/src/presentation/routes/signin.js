@@ -117,4 +117,58 @@ router.post("/request-otp", async (req, res) => {
     }
 });
 
+router.post("/otp", async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Fetch OTP using user ID
+        const verificationRecord = await OTPModel.findOne({ _id: user._id });
+
+        if (!verificationRecord) {
+            return res.status(401).json({ message: "Invalid OTP" });
+        }
+
+        const { expiresAt, otp: hashedOTP } = verificationRecord;
+
+        if (expiresAt < Date.now()) {
+            await OTPModel.deleteMany({ _id: user._id });
+            return res.status(401).json({ message: "OTP has expired" });
+        }
+
+        const validateOTP = await bcrypt.compare(otp, hashedOTP);
+
+        if (!validateOTP) {
+            return res.status(401).json({ message: "Invalid OTP" });
+        }
+
+        // Mark user as verified if not already
+        if (!user.verified) {
+            await userModel.updateOne({ _id: user._id }, { verified: true });
+        }
+
+        await OTPModel.deleteMany({ _id: user._id }); // Remove OTP after use
+
+        // Generate JWT token
+        const token = jwt.sign({ id: user._id.toString() }, JWT_SECRET, { expiresIn: "1h" });
+        res.json({
+            token,
+            message: "Login successful",
+        });
+
+    } catch (e) {
+        console.error("Error in /signin/otp:", e);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
 export default router;
