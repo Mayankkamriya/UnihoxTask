@@ -1,105 +1,133 @@
 
-# 🔐 Authentication API
+# 🔐 Authentication API (DDD & SOLID Architecture)
 
-##  📌  **Overview**
-This project is a secure authentication system built using **Node.js, Express, MongoDB, and JWT**. It provides multiple authentication methods, including **password-based login and OTP-based login**, with **email verification** via **nodemailer**.
+## 📌 Overview
+This project is a secure authentication system built using **Node.js, Express, MongoDB, and JWT**, following **Domain-Driven Design (DDD)** and adhering to **SOLID principles**. It provides multiple authentication methods, including **password-based login** and **OTP-based login**, with email verification via Nodemailer.
 
-## ✨ **Features**
-- 📝 **User Registration** with email and password  
-- 📧 **Email Verification** through OTP  
-- 🔑 **Secure Authentication** with JWT  
-- 🔐 **Password-based Login**  
-- 🔢 **OTP-based Login**  
-- 🔓 **Token-based Authorization**  
-- 🔁 **Resend OTP functionality**  
-- 🛡️ **Middleware for Protected Routes**  
+---
 
-## 🛠 **Technology Stack**
-- 🚀 **Backend:** Node.js, Express.js  
-- 🗄️ **Database:** MongoDB (Mongoose ODM)  
-- 🔑 **Authentication:** JWT, bcrypt for password hashing  
-- 📧 **Email Service:** Nodemailer with SMTP  
-- 🛡️ **Validation:** Zod  
-- 🔒 **Security:** CORS, dotenv for environment configuration  
+## ✨ Features
+- 📝 **User Registration** with email and password
+- 📧 **Email Verification** through OTP
+- 🔑 **Secure Authentication** with JWT
+- 🔐 **Password-based Login**
+- 🔢 **OTP-based Login**
+- 🔓 **Token-based Authorization**
+- 🔁 **Resend OTP functionality**
+- 🛡️ **Middleware for Protected Routes**
 
-## 📂**Folder Structure**
-      /Backend  
-         └── /src  
-             ├── db.js  
-             ├── index.js  
-             ├── middleware.js  
+---
 
-      /Frontend  
-         └── /src  
-             ├── /components  
-             │   ├── dashboard.jsx  
-             │   ├── mainP.jsx  
-             │   ├── signinOtp.jsx  
-             │   ├── signinPassword.jsx  
-             │   ├── signup.jsx  
-             ├── app.jsx  
-      
+## 🛠 Technology Stack
+- 🚀 **Backend:** Node.js, Express.js
+- 🗄️ **Database:** MongoDB (Mongoose ODM)
+- 🔑 **Authentication:** JWT, bcrypt for password hashing
+- 📧 **Email Service:** Nodemailer with SMTP
+- 🛡️ **Validation:** Zod
+- 🔒 **Security:** CORS, dotenv for environment configuration
 
-## ⚙️ **Setup Instructions**
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/authentication-api.git
-   ```
+---
 
-2. Install backend dependencies and start the server:
-   ```bash
-   cd backend
-   npm install
-   node index.js
-   ```
+## 📂 Folder Structure (DDD)
+```
+/backend
+ ├── /src
+ │   ├── /domain
+ │   │   ├── services
+ │   │   │   ├── AuthService.js
+ │   ├── /infrastructure
+ │   │   ├── models
+ │   │   │   ├── otp.js
+ │   │   │   ├── user.js
+ │   │   ├── email
+ │   │       ├── EmailService.js
+ │   │   ├── db.js
+ │   ├── /presentation
+ │   │   ├── middleware
+ │   │       ├── auth.js
+ │   │   ├── routes
+ │   │       ├── otp.js
+ │   │       ├── signin.js
+ │   │       ├── signup.js
+ │   ├── index.js
+/frontend
+ ├── /src
+ │   ├── /components
+ │   │   ├── Dashboard.jsx
+ │   │   ├── MainPage.jsx
+ │   │   ├── SignInOtp.jsx
+ │   │   ├── SignInPassword.jsx
+ │   │   ├── SignUp.jsx
+ │   ├── App.jsx
+```
 
-3. Install frontend dependencies and start the app:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+---
 
-4. Create a .env file in the backend folder
-   ```bash
-   MONGODB_URI=your-mongodb-connection-string
-   JWT_SECRET=your-secret-key
-   EMAIL=your-email
-   PASS=your-email-password
-   HOST=smtp.example.com
-   ```
+## ⚙️ Setup Instructions
+### 📥 Clone the Repository:
+```sh
+git clone https://github.com/Mayankkamriya/UnihoxTask.git
+```
 
-5.  Create a .env file in the backend folder
-   ```bash
-   VITE_API_URL=http://localhost:3000
-   VITE_JWT_SECRET=your-secret-key
-   ```
+### 📌 Install Backend Dependencies & Start Server:
+```sh
+cd backend
+npm install
+cd src
+node index.js
+```
 
-6. Open the app at: [http://localhost:3000](http://localhost:3000)
+### 📌 Install Frontend Dependencies & Start App:
+```sh
+cd frontend
+npm install
+npm run dev
+```
 
+### 🔑 Environment Variables
+Create a `.env` file in the **backend** folder:
+```sh
+MONGODB_URI=your-mongodb-connection-string
+JWT_SECRET=your-secret-key
+EMAIL=your-email
+PASS=your-email-password
+HOST=smtp.example.com
+```
+Create a `.env` file in the **frontend** folder:
+```sh
+VITE_API_URL=http://localhost:3000
+VITE_JWT_SECRET=your-secret-key
+```
 
-## 🔗  API Endpoints
+### 🌍 Open the App at:
+```
+http://localhost:3000
+```
 
-   - POST `/api/v1/signup` → Register a new user
-   - POST `/api/v1/signin/password` → Login with email and password
-   - POST `/api/v1/signin/request-otp` → Request OTP for login
-   - POST `/api/v1/signin/otp` → Verify OTP and login
-   - POST `/resendOTP` → Resend OTP
-   - GET `/api/v1/dashboard` → Protected route (requires authentication)
+---
+
+## 🔗 API Endpoints
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| **POST** | `/api/v1/signup` | Register a new user |
+| **POST** | `/api/v1/signin/password` | Login with email and password |
+| **POST** | `/api/v1/signin/request-otp` | Request OTP for login |
+| **POST** | `/api/v1/signin/otp` | Verify OTP and login |
+| **POST** | `/api/v1/resendOTP` | Resend OTP |
+| **GET** | `/api/v1/dashboard` | Protected route (requires authentication) |
+
+---
 
 ## 🌍 Deployment
-   The project is deployed online. You can access it here:  
-   🔗 **Live Demo:** [https://unihox-task.vercel.app](https://unihox-task.vercel.app)
+🔗 **Live Demo:** [https://unihox-task.vercel.app](https://unihox-task.vercel.app)
 
 ---
 
-## 👨‍💻 **Developer Details:**
+## 👨‍💻 Developer Details:
+**Mayank Kamriya**  
+B.B.A. - Vikram University  
+🌐 [LinkedIn](https://www.linkedin.com/in/mayank-kamriya)
+📧 [mayankkamriya305@gmail.com](mailto:mayankkamriya305@gmail.com)  
+📞 +91 8253038815  
 
-   **Mayank Kamriya**  
-      B.B.A. - Vikram University  
-      🌐 [LinkedIn](https://www.linkedin.com/in/mayank-kamriya) | 📧 mayankkamriya305@gmail.com
-      📞 +91 8253038815
-
----
-
-> Made with ❤️ by Mayank Kamriya
+ *Made with ❤️ by Mayank Kamriya*
