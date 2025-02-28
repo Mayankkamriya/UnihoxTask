@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import OTPModel from "../../infrastructure/models/otp.js";
 import { transporter } from "../../infrastructure/email/EmailSender.js";
-import userModel from "../../infrastructure/models/user.js"; // Ensure correct import
+import userModel from "../../infrastructure/models/user.js"; 
 
 export const sendOTP = async (user_id, email) => {
     try {

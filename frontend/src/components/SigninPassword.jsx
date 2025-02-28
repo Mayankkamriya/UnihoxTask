@@ -80,6 +80,7 @@ function SigninPassword() {
 
         <button
           onClick={handleLogin}
+          disabled={isProcessing}
           className="mt-6 w-full cursor-pointer font-bold text-2xl text-white bg-gradient-to-br from-[#0a3b42] via-[#214e54] to-[#60c3d5] py-3 rounded-lg hover:opacity-90 transition-all"
         >
           {isProcessing ? "Processing..." : "LOGIN"}

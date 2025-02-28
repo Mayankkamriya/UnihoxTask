@@ -127,7 +127,8 @@ const SigninOTP = () => {
   />
   <button 
     onClick={requestOTP} 
-    disabled={otpSent} 
+    // disabled={otpSent} 
+    disabled={isProcessing}
     className="mt-6 lg:mt-8 cursor-pointer w-full font-bold text-xl lg:text-3xl text-white bg-gradient-to-br from-[#0a3b42] via-[#214e54] to-[#60c3d5] py-3 lg:py-4 rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
   >
     {isProcessing ? "Processing..." : "Request OTP"}
@@ -166,6 +167,7 @@ const SigninOTP = () => {
       <button
         onClick={verifyOTP}
         // onClick={!isProcessing ? () => {verifyOTP()} : undefined}
+        disabled={isProcessing}
         className="mt-6 cursor-pointer lg:mt-8 w-full font-bold text-xl lg:text-3xl text-white bg-gradient-to-br from-[#0a3b42] via-[#214e54] to-[#60c3d5] py-3 lg:py-4 rounded-lg hover:opacity-90 transition-all"
       >
          {isProcessing ? "Processing..." : "SUBMIT OTP"}

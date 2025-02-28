@@ -41,6 +41,12 @@ function Signup() {
   };}
 
   const verifyOtp = async () => {
+
+    if (otp.length !== 4) {
+      toast.warning("Please enter complete OTP");
+      return;
+    }
+    
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/otp/verifyOTP`,
         {
@@ -100,8 +106,9 @@ function Signup() {
               className="w-full p-3 mt-4 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-400"
             />
             <button
-              //onClick={handleSignup}
-               onClick={!isProcessing ? () => {handleSignup()} : undefined}
+              onClick={handleSignup}
+              // onClick={!isProcessing ? () => {handleSignup()} : undefined}
+              disabled={isProcessing}
               className="mt-6 w-full cursor-pointer font-bold text-lg md:text-2xl text-white bg-gradient-to-br from-[#0a3b42] via-[#214e54] to-[#60c3d5] py-3 rounded-lg hover:opacity-90 transition-all"
             >
               {isProcessing ? "Processing..." : "SIGN UP"}

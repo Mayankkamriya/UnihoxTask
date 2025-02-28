@@ -15,6 +15,11 @@ router.post("/verifyOTP", async (req, res) => {
     try {
         const { otp, userId } = req.body;
 
+        if (otp.length !== 4) {
+            toast.warning("Please enter complete OTP");
+            return;
+          } 
+          
         if (!userId || !otp) {
             throw new Error("Empty fields not allowed");
         }
