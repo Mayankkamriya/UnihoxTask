@@ -42,7 +42,7 @@ function Signup() {
 
   const verifyOtp = async () => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/verifyOTP`,
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/otp/verifyOTP`,
         {
           otp,
           userId: userInfo._id,
