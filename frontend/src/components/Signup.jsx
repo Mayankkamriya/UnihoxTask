@@ -33,11 +33,12 @@ function Signup() {
       setUserInfo(response.data.user);
       setOtpSent(true);
     } catch (error) {
-      toast.error("Error signing up");
-      // alert("Error signing up");
-      setIsProcessing(false); 
+      const errorMessage = error.response?.data?.message || "Error signing up"; 
+      toast.error(errorMessage);
     }
-  };
+    finally {
+      setIsProcessing(false);
+  };}
 
   const verifyOtp = async () => {
     try {
@@ -48,14 +49,21 @@ function Signup() {
         });
         if (response.data.status ==='SUCCESS') {
           toast.success(response.data.message); // Show success toast
+          navigate('/signin-password')
       } else {
           toast.error(response.data.message); // Handle unexpected cases (just in case)
       }
         console.log(response.data.message)
       // alert(response.data.message);
-      navigate("/signin-password");
+      // navigate("/signin-password");
+      if (otpInputsRef.current) {
+        otpInputsRef.current.forEach((input) => (input.value = ""));
+      }
+      setOtp('')
     } catch (error) {
-      toast.error("Error verifying OTP");
+      const errorMessage = error.response?.data?.message || "Error verifying OTP";
+    toast.error(errorMessage);
+      // toast.error("Error verifying OTP");
       // alert("Error verifying OTP");
     }
   };
