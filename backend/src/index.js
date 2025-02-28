@@ -93,7 +93,7 @@ app.use(cors(corsOptions));
     catch (e) {
         console.log(e);
     }
-}
+} 
 
 app.get('/test', (req, res) => {
     res.send('CORS test successful!');
