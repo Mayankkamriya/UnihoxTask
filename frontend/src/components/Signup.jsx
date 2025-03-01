@@ -48,11 +48,13 @@ function Signup() {
     }
     
     try {
+      setIsProcessing(true);
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/otp/verifyOTP`,
         {
           otp,
           userId: userInfo._id,
         });
+        setIsProcessing(false);
         if (response.data.status ==='SUCCESS') {
           toast.success(response.data.message); // Show success toast
           navigate('/signin-password')
@@ -67,6 +69,7 @@ function Signup() {
       }
       setOtp('')
     } catch (error) {
+      setIsProcessing(false);
       const errorMessage = error.response?.data?.message || "Error verifying OTP";
     toast.error(errorMessage);
       // toast.error("Error verifying OTP");
@@ -149,9 +152,10 @@ function Signup() {
             </div>
             <button
               onClick={verifyOtp}
+              disabled={isProcessing}
               className="mt-6 w-full bg-gradient-to-r cursor-pointer from-gray-900 to-gray-700 text-white py-3 rounded-lg hover:opacity-90 transition-all"
             >
-              Verify OTP
+              {isProcessing ? "Processing..." : "Verify OTP"}
             </button>
           </>
         )}

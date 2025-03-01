@@ -50,6 +50,7 @@ const SigninOTP = () => {
     }
 
     try {
+      setIsProcessing(true);
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/v1/signin/otp`, 
         { email, otp },
@@ -60,7 +61,7 @@ const SigninOTP = () => {
           timeout: 30000
         }
       );
-
+      setIsProcessing(false);
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         navigate("/dashboard");
@@ -68,6 +69,7 @@ const SigninOTP = () => {
         toast.error(response.data.message);
       }
     } catch (error) {
+      setIsProcessing(false);
       if (error.code === 'ECONNABORTED') {
         toast.error("Request timed out. Please try again.");
       } else if (error.response) {
@@ -76,7 +78,9 @@ const SigninOTP = () => {
         toast.error("Error verifying OTP. Please try again.");
       }
       console.error("OTP verification error:", error);
-    }
+    } finally {
+    setIsProcessing(false);
+  }
   };
 
   const handleResendOTP = async () => {
