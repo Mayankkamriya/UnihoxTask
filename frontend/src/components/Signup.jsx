@@ -30,26 +30,20 @@ function Signup() {
       toast.warning("Please fill in all required fields");
       return;
     } 
-    // const formdata_name= formData.name
-    //     const check_name = await userModel.findOne(formdata_name );
-    //     if (check_name) {
-    //         return toast.warning("Please provide unique name.");
-    //     }
     setIsProcessing(true);
-    try {
-    if(signupMethod==="email"){
 
       try{
+        const apiUrl =
+        signupMethod === "email"
+          ? `${import.meta.env.VITE_API_URL}/api/v1/signup`
+          : `${import.meta.env.VITE_API_URL}/api/v1/signin/add-mobile`;
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/signup`, formData);
-      console.log(response.data)
+      const response = await axios.post(apiUrl, formData);
       if (response.data.status ==='success') {
         toast.success(response.data.message); // Show success toast
     } else {
         toast.error(response.data.message); // Handle unexpected cases (just in case)
     }
-    console.log(response.data.message)
-      // alert(response.data.message);
       setUserInfo(response.data.user);
       setOtpSent(true);
     } catch (error) {
@@ -59,33 +53,6 @@ function Signup() {
     finally {
       setIsProcessing(false);
   }
-
-    } else {
-try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/signin/add-mobile`, formData);
-    
-      console.log(response.data)
-      if (response.data.status === 'SUCCESS') {
-        toast.success(response.data.message); // Show success toast
-    } else {
-        toast.error(response.data.message); // Handle unexpected cases (just in case)
-    }
-      // alert(response.data.message);
-      setUserInfo(response.data.user);
-      setOtpSent(true);
-
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error signing up"; 
-      toast.error(errorMessage);
-    }
-    finally {
-      setIsProcessing(false);
-  }
-};
-} catch (error) {
-  const errorMessage = error.response?.data?.message || "Error signing up"; 
-  toast.error(errorMessage);
-}
   }
 
   const verifyOtp = async () => {
@@ -112,8 +79,6 @@ try {
           toast.error(response.data.message); // Handle unexpected cases (just in case)
       }
         console.log(response.data.message)
-      // alert(response.data.message);
-      // navigate("/signin-password");
       if (otpInputsRef.current) {
         otpInputsRef.current.forEach((input) => (input.value = ""));
       }
@@ -123,7 +88,6 @@ try {
       const errorMessage = error.response?.data?.message || "Error verifying OTP";
     toast.error(errorMessage);
       // toast.error("Error verifying OTP");
-      // alert("Error verifying OTP");
     }
   } else {
     try {
@@ -144,20 +108,6 @@ try {
         } else {
           toast.error(response.data.message);
         }
-
-      //   if (response.data.status ==='SUCCESS') {
-      //     navigate('/signin-password')
-      //     toast.success(response.data.message); // Show success toast
-      // } else {
-      //   // console.log(response.data.message)
-      //     toast.error(response.data.message); // Handle unexpected cases (just in case)
-      // }
-
-
-
-        // console.log(response.data.message)
-      // alert(response.data.message);
-      // navigate("/signin-password");
       if (otpInputsRef.current) {
         otpInputsRef.current.forEach((input) => (input.value = ""));
       }
@@ -166,8 +116,6 @@ try {
       setIsProcessing(false);
       const errorMessage = error.response?.data?.message || "Error verifying OTP";
     toast.error(errorMessage);
-      // toast.error("Error verifying OTP");
-      // alert("Error verifying OTP");
     }
   }
   };

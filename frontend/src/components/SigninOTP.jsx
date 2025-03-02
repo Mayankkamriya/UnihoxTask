@@ -16,27 +16,23 @@ const SigninOTP = () => {
   const navigate = useNavigate();
  
   const requestOTP = async () => {
-    if (signupMethod==="email"){
-    try {
 
-        // Regular expression to check if the email contains '@' and ends with '.com'
-      const emailRegex = /@.+\.com$/;
-
-      if (!emailRegex.test(email)) {
-          return toast.warning( "Invalid Email format or select Sign in with Mobile.");
+      const isEmailSignup = signupMethod === "email";
+      const payload = isEmailSignup ? { email } : { mobile };
+      const apiUrl = `${import.meta.env.VITE_API_URL}/api/v1/signin/${isEmailSignup ? "request-otp" : "request-mobile-otp"}`;
+    
+      if (isEmailSignup && !/@.+\.com$/.test(email)) {
+        return toast.warning("Invalid Email format or select Sign in with Mobile.");
       }
-
-      setIsProcessing(true);
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/signin/request-otp`, 
-        { email },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000
-        }
-      );
+      
+      try {
+        setIsProcessing(true);
+        console.log('payload,apiUrl....',payload,' ',apiUrl)
+        const response = await axios.post(apiUrl, payload, {
+          headers: { "Content-Type": "application/json" },
+          timeout: 10000,
+        });
+console.log(response)
       setIsProcessing(false);
       setOtpSent(true);
       toast.success(response.data.message);
@@ -51,37 +47,6 @@ const SigninOTP = () => {
       }
       console.error("OTP request error:", error);
     } 
-  } else {
-    try {
-      setIsProcessing(true);
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/signin/request-mobile-otp`, 
-        { mobile },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000
-        }
-      );
-
-      setIsProcessing(false);
-      setOtpSent(true);
-      toast.success(response.data.message);
-    } catch (error) {
-
-      setIsProcessing(false);
-      if (error.code === 'ECONNABORTED') {
-        toast.error("Request timed out. Please try again.");
-      } else if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Error sending OTP. Please try again.");
-      }
-
-      console.error("OTP request error:", error);
-    } 
-  }
   };
 
   const verifyOTP = async () => {
