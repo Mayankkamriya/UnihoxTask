@@ -6,16 +6,26 @@ import { toast } from "react-toastify";
 
 const SigninOTP = () => {
   const [email, setEmail] = useState("");
+  const [mobile, setmobile] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  // const [message, setMessage] = useState("");
+  const [signupMethod, setSignupMethod] = useState("email");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const otpInputsRef = useRef([]);
   const navigate = useNavigate();
  
   const requestOTP = async () => {
+    if (signupMethod==="email"){
     try {
+
+        // Regular expression to check if the email contains '@' and ends with '.com'
+      const emailRegex = /@.+\.com$/;
+
+      if (!emailRegex.test(email)) {
+          return toast.warning( "Invalid Email format or select Sign in with Email.");
+      }
+
       setIsProcessing(true);
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/v1/signin/request-otp`, 
@@ -40,7 +50,38 @@ const SigninOTP = () => {
         toast.error("Error sending OTP. Please try again.");
       }
       console.error("OTP request error:", error);
-    }
+    } 
+  } else {
+    try {
+      setIsProcessing(true);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/signin/request-mobile-otp`, 
+        { mobile },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000
+        }
+      );
+
+      setIsProcessing(false);
+      setOtpSent(true);
+      toast.success(response.data.message);
+    } catch (error) {
+
+      setIsProcessing(false);
+      if (error.code === 'ECONNABORTED') {
+        toast.error("Request timed out. Please try again.");
+      } else if (error.response) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Error sending OTP. Please try again.");
+      }
+
+      console.error("OTP request error:", error);
+    } 
+  }
   };
 
   const verifyOTP = async () => {
@@ -49,41 +90,77 @@ const SigninOTP = () => {
       return;
     }
 
-    try {
-      setIsProcessing(true);
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/v1/signin/otp`, 
-        { email, otp },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 30000
+    if (signupMethod==="email"){
+      try {
+        setIsProcessing(true);
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/signin/otp`, 
+          { email, otp },
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            timeout: 30000
+          }
+        );
+        setIsProcessing(false);
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          navigate("/dashboard");
+        } else {
+          toast.error(response.data.message);
         }
-      );
-      setIsProcessing(false);
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        navigate("/dashboard");
-      } else {
-        toast.error(response.data.message);
-      }
-    } catch (error) {
-      setIsProcessing(false);
-      if (error.code === 'ECONNABORTED') {
-        toast.error("Request timed out. Please try again.");
-      } else if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Error verifying OTP. Please try again.");
-      }
-      console.error("OTP verification error:", error);
-    } finally {
-    setIsProcessing(false);
-  }
+      } catch (error) {
+        setIsProcessing(false);
+        if (error.code === 'ECONNABORTED') {
+          toast.error("Request timed out. Please try again.");
+        } else if (error.response) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Error verifying OTP. Please try again.");
+        }
+        console.error("OTP verification error:", error);
+      } 
+    } else {
+      try {
+        setIsProcessing(true);
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/v1/signin/verify-mobile`, 
+          { mobile, otp },
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            timeout: 30000
+          }
+        );
+        setIsProcessing(false);
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          navigate("/dashboard");
+        } else {
+          toast.error(response.data.message);
+        }
+      } catch (error) {
+        setIsProcessing(false);
+        if (error.code === 'ECONNABORTED') {
+          toast.error("Request timed out. Please try again.");
+        } else if (error.response) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Error verifying OTP. Please try again.");
+        }
+        console.error("OTP verification error:", error);
+      } 
+    } 
   };
 
   const handleResendOTP = async () => {
+
+    if(!signupMethod==='email'){
+      return toast.warning('OTP resend service is currently unavailable for mobile login.')
+    }
+
     setOtp("");
     // Clear OTP input fields
     otpInputsRef.current.forEach(input => {
@@ -121,18 +198,50 @@ const SigninOTP = () => {
   >
     Login with <span className="text-xl font-semibold text-red-600">Password</span>
   </p>
-
+      {/* Radio Buttons for Selecting Signup Method */}
+  { !otpSent &&
+  <div className="flex items-center gap-4 mt-4">
+      <label className="flex items-center text-white cursor-pointer">
+        <input
+          type="radio"
+          value="email"
+          checked={signupMethod === "email"}
+          onChange={() => setSignupMethod("email")}
+          className="mr-2"
+        />
+        Sign in with Email
+      </label>
+      <label className="flex items-center text-white cursor-pointer">
+        <input
+          type="radio"
+          value="mobile"
+          checked={signupMethod === "mobile"}
+          onChange={() => setSignupMethod("mobile")}
+          className="mr-2"
+        />
+        Sign in with Mobile
+      </label>
+    </div>
+}
   <input
-    type="email"
-    placeholder="abc@email.com"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
+    type= {signupMethod === "email" ? "email" : "tel"} 
+    placeholder= {signupMethod === "email" ? "abc@email.com" : "Phone Number +91 "} 
+    // value={email}
+    value={signupMethod === "email" ? email : mobile} 
+    onChange={(e) => {
+      if (signupMethod === "email") {
+        setEmail(e.target.value);
+      } else {
+        setmobile(e.target.value);
+      }
+    }}
+    // onChange={(e) => setEmail(e.target.value)}
     className="w-full p-3 lg:p-4 mt-4 bg-white border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-400"
   />
   <button 
     onClick={requestOTP} 
     // disabled={otpSent} 
-    disabled={isProcessing}
+    disabled={isProcessing || otpSent }
     className="mt-6 lg:mt-8 cursor-pointer w-full font-bold text-xl lg:text-3xl text-white bg-gradient-to-br from-[#0a3b42] via-[#214e54] to-[#60c3d5] py-3 lg:py-4 rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
   >
     {isProcessing ? "Processing..." : "Request OTP"}

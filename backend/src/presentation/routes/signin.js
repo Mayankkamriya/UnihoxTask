@@ -64,13 +64,14 @@ router.post("/add-mobile", async (req, res) => {
 // Verify mobile OTP
 router.post("/verify-mobile", async (req, res) => {
     try {
-        const { userId, otp } = req.body;
-        const user = await userModel.findById(userId);
+        const { mobile, otp } = req.body;
+
+        const user = await userModel.findOne({mobile: mobile});
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const verificationRecord = await MobileOTPModel.findOne({ _id: userId });
+        const verificationRecord = await MobileOTPModel.findOne({ _id: user._id });
         if (!verificationRecord) {
             return res.status(401).json({ message: "Invalid OTP" });
         }
@@ -87,9 +88,15 @@ router.post("/verify-mobile", async (req, res) => {
             return res.status(401).json({ message: "Invalid OTP" });
         }
 
-        user.mobileVerified = true;
-        await user.save();
-        await MobileOTPModel.deleteMany({ _id: userId });
+        // user.mobileVerified = true;
+        // await user.save();
+
+        // Mark user as verified if not already
+        if (!user.mobileVerified) {
+            await userModel.updateOne({ _id: user._id }, { mobileVerified: true });
+        }
+
+        await MobileOTPModel.deleteMany({ _id: user._id });
 
         // res.json({
         //     status: "SUCCESS",
@@ -113,14 +120,24 @@ router.post("/verify-mobile", async (req, res) => {
 // Request new mobile OTP
 router.post("/request-mobile-otp", async (req, res) => {
     try {
-        const { userId } = req.body;
+        const { mobile } = req.body;
 
-        const user = await userModel.findById(userId);
-        if (!user || !user.mobileNumber) {
+        if ( !mobile) {
+            return res.status(404).json({ message: "Please enter mobile number" });
+        }
+        const mobileRegex = /^\+[1-9]\d{1,14}$/;
+
+        if (!mobileRegex.test(mobile)) {
+            return res.status(400).json({ message: "Invalid mobile number format. Use format (+91 234567890)" });
+        }
+
+        const user = await userModel.findOne({ mobile: mobile });
+
+        if (!user || !user.mobile) {
             return res.status(404).json({ message: "User or mobile number not found" });
         }
 
-        await sendMobileOTP(user._id, user.mobileNumber);
+        await sendMobileOTP(user._id, user.mobile);
         res.json({ message: "OTP sent successfully" });
     } catch (e) {
         console.error("Error in /request-mobile-otp:", e);

@@ -65,7 +65,7 @@ function SigninPassword() {
         <input
           type="email"
           name="email"
-          placeholder="Email or Phone Number"
+          placeholder="Email eg. abc@email.com"
           onChange={handleChange}
           className="w-full p-3 mt-4 bg-white border border-gray-300 rounded-3xl focus:outline-none focus:ring-3 focus:ring-blue-400"
         />
