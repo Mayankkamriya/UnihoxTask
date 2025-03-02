@@ -3,58 +3,131 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import userModel from '../../infrastructure/models/user.js';  
 import OTPModel from '../../infrastructure/models/otp.js'; 
-import { transporter } from '../../infrastructure/email/EmailSender.js'
+import MobileOTPModel from '../../infrastructure/models/mobileotp.js';
 import dotenv from "dotenv";
+import { sendMobileOTP } from '../../domain/services/twilioservices.js'
+import { sendOTP } from "../../domain/services/AuthService.js";
 
 dotenv.config();
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET; // Use from .env
 
+// Add mobile number to user account
+router.post("/add-mobile", async (req, res) => {
+    try {
+        const { name, mobile } = req.body; 
 
-    const sendOTP = async (user_id, email) => {
-        try {
-        const user = await userModel.findOne({ email });
-        const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+        const mobileRegex = /^\+[1-9]\d{1,14}$/;
 
-        const mailStruct = {
-            from: process.env.EMAIL,
-            to: email,
-            subject: "Verify Your Email",
-            html: `<p>Your OTP is <b>${otp}</b> to verify the email by - Mayank Kamriya</p>
-        <p>OTP is valid for 1 Hour.</p>`,
+        if (!mobileRegex.test(mobile)) {
+            return res.status(400).json({ message: "Invalid mobile number format. Use format (+91 234567890)" });
         }
 
-        const hashedOTP = await bcrypt.hash(otp, 4);
+        if ( !name) {
+            return res.status(400).json({
+                status: "FAILED",
+                message: "Name is required.",
+            });
+        }
 
+        // Check if user already exists
+        const existingUser = await userModel.findOne({ mobile });
+
+        if (existingUser) {
+            return res.status(403).json({ 
+                status: "FAILED", 
+                message: "Mobile Number already registerd." 
+            });
+        } else  {
+             var user = await userModel.create({
+                    name,
+                    mobile,
+                    // email,
+                    // verified: false,
+                });
+            }
+
+        await sendMobileOTP(user._id, mobile);
+
+        res.json({
+            status: "SUCCESS",
+            message: "OTP sent successfully",
+            user: user
+        });
+    } catch (e) {
+        console.error("Error in /add-mobile:", e);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// Verify mobile OTP
+router.post("/verify-mobile", async (req, res) => {
+    try {
+        const { userId, otp } = req.body;
+        const user = await userModel.findById(userId);
         if (!user) {
-            const newOTP = await OTPModel.create({
-                _id: user_id,
-                otp: hashedOTP,
-                createdAt: Date.now(),
-                expiresAt: Date.now() + 3600000,
-            })
-
+            return res.status(404).json({ message: "User not found" });
         }
-        else {
-            await OTPModel.updateOne({ _id: user_id },
-                {
-                    otp: hashedOTP,
-                    createdAt: Date.now(),
-                    expiresAt: Date.now() + 5 * 60 * 1000,
-                },
-                { upsert: true }
-            );
 
-
+        const verificationRecord = await MobileOTPModel.findOne({ _id: userId });
+        if (!verificationRecord) {
+            return res.status(401).json({ message: "Invalid OTP" });
         }
-        await transporter.sendMail(mailStruct);
 
+        const { expiresAt, otp: hashedOTP } = verificationRecord;
+
+        if (expiresAt < Date.now()) {
+            await MobileOTPModel.deleteMany({ _id: userId });
+            return res.status(401).json({ message: "OTP has expired" });
+        }
+
+        const validateOTP = await bcrypt.compare(otp, hashedOTP);
+        if (!validateOTP) {
+            return res.status(401).json({ message: "Invalid OTP" });
+        }
+
+        user.mobileVerified = true;
+        await user.save();
+        await MobileOTPModel.deleteMany({ _id: userId });
+
+        // res.json({
+        //     status: "SUCCESS",
+        //     message: "Mobile number verified successfully"
+        // });
+
+ // Generate JWT token
+ const token = jwt.sign({ id: user._id.toString() }, JWT_SECRET, { expiresIn: "1h" });
+ res.json({
+    status: "SUCCESS",
+     token,
+     message: "Login successful",
+ });
+
+    } catch (e) {
+        console.error("Error in /verify-mobile:", e);
+        res.status(500).json({ message: "Internal server error" });
     }
-    catch (e) {
-        console.log(e);
+});
+
+// Request new mobile OTP
+router.post("/request-mobile-otp", async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        const user = await userModel.findById(userId);
+        if (!user || !user.mobileNumber) {
+            return res.status(404).json({ message: "User or mobile number not found" });
+        }
+
+        await sendMobileOTP(user._id, user.mobileNumber);
+        res.json({ message: "OTP sent successfully" });
+    } catch (e) {
+        console.error("Error in /request-mobile-otp:", e);
+        res.status(500).json({ message: "Internal server error" });
     }
-}
+});
+
 
 // Login with Password Route
 router.post("/password", async (req, res) => {
