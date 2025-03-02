@@ -30,6 +30,11 @@ function Signup() {
       toast.warning("Please fill in all required fields");
       return;
     } 
+    // const formdata_name= formData.name
+    //     const check_name = await userModel.findOne(formdata_name );
+    //     if (check_name) {
+    //         return toast.warning("Please provide unique name.");
+    //     }
     setIsProcessing(true);
     try {
     if(signupMethod==="email"){

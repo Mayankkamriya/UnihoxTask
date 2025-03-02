@@ -43,8 +43,8 @@ router.post("/add-mobile", async (req, res) => {
              var user = await userModel.create({
                     name,
                     mobile,
-                    // email,
-                    // verified: false,
+                    email:`Empty_email_from_unihox${mobile}`,
+                    verified: false,
                 });
             }
 
@@ -64,9 +64,9 @@ router.post("/add-mobile", async (req, res) => {
 // Verify mobile OTP
 router.post("/verify-mobile", async (req, res) => {
     try {
-        const { mobile, otp } = req.body;
+        const { mobile, otp, userId } = req.body;
 
-        const user = await userModel.findOne({mobile: mobile});
+        const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -79,7 +79,7 @@ router.post("/verify-mobile", async (req, res) => {
         const { expiresAt, otp: hashedOTP } = verificationRecord;
 
         if (expiresAt < Date.now()) {
-            await MobileOTPModel.deleteMany({ _id: userId });
+            await MobileOTPModel.deleteMany({ _id: user._id });
             return res.status(401).json({ message: "OTP has expired" });
         }
 
@@ -134,7 +134,7 @@ router.post("/request-mobile-otp", async (req, res) => {
         const user = await userModel.findOne({ mobile: mobile });
 
         if (!user || !user.mobile) {
-            return res.status(404).json({ message: "User or mobile number not found" });
+            return res.status(404).json({ message: "User number not found" });
         }
 
         await sendMobileOTP(user._id, user.mobile);

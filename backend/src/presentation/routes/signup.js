@@ -33,9 +33,13 @@ router.post("/", async (req, res) => {
         const check_email = await userModel.findOne({ email });
 
         if (check_email) {
-            return res.status(403).json({ message: "Email Already exist." });
+            return res.status(403).json({ message: "Email Already registerd." });
         }
+        const check_name = await userModel.findOne({ name });
 
+        if (check_name) {
+            return res.status(403).json({ message: "Please provide unique name." });
+        }
         // Ensure password is not undefined
         if (!password) {
             return res.status(400).json({

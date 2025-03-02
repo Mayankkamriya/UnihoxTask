@@ -23,7 +23,7 @@ const SigninOTP = () => {
       const emailRegex = /@.+\.com$/;
 
       if (!emailRegex.test(email)) {
-          return toast.warning( "Invalid Email format or select Sign in with Email.");
+          return toast.warning( "Invalid Email format or select Sign in with Mobile.");
       }
 
       setIsProcessing(true);
