@@ -21,6 +21,11 @@ function Signup() {
 
   const handleSignup = async () => {
     
+    if (signupMethod !== "email"){
+        toast.warning("SignUp with mobile is currently available on localhost only");
+        return;
+    }
+
     if (signupMethod === "email" && (!formData.email || !formData.password || !formData.name)) {
       toast.warning("Please fill in all required fields");
       return;
