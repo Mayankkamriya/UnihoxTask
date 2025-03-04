@@ -36,7 +36,7 @@ function Signup() {
       return;
   }
   if (formData.password.length < 5) {
-      toast.warning("Password must be at least 3 characters long!");
+      toast.warning("Password must be at least 5 characters long!");
       return;
   }
   if (!/\S+@\S+\.\S+/.test(formData.email)) {
