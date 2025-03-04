@@ -20,7 +20,7 @@ function Signup() {
   };
 
   const handleSignup = async () => {
-    
+
     if (signupMethod !== "email"){
         toast.warning("SignUp with mobile is currently available on localhost only");
         return;
@@ -30,6 +30,19 @@ function Signup() {
       toast.warning("Please fill in all required fields");
       return;
     }
+
+    if (formData.name.length < 3) {
+      toast.warning("Name must be at least 3 characters long!");
+      return;
+  }
+  if (formData.password.length < 5) {
+      toast.warning("Password must be at least 3 characters long!");
+      return;
+  }
+  if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      toast.warning("Enter a valid email address!");
+      return;
+  }
   
     if (signupMethod === "mobile" && (!formData.mobile || !formData.name)) {
       toast.warning("Please fill in all required fields");
